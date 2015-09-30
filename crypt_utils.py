@@ -28,11 +28,20 @@ def dragcrib(a, crib):
     res.append((xored, i))
   return res
 
+import re
+
+#given a string, drags ' the ' crib across a
+#returns list of tuples containing substring of a and index if substring contains only english chars
+def filterBarrelsWithTheCrib(a):
+  barrels = dragcrib(a, ' the ')
+  barrels_filtered = filter(lambda x: re.search(r'\w\w\w\w\w', x[0]) is not None, barrels)
+  return barrels_filtered
+
 #there are some spaces that might coincide.
-#xor space with space -> \x00
-#so after xoring 2 strings, if find \x00, you definitely know there is a space there
-#returns list with indexes of the spaces
-def find_spaces(x):
+#xor space with space -> \x00 or matching chars
+#so after xoring 2 strings, if find \x00, you definitely know there is a space or matching char there
+#returns list with indexes of the nulls
+def find_nulls(x):
   res = []
   for i, j in enumerate(x):
     if j == '\x00':
@@ -45,7 +54,7 @@ def make_cracks(str_a, str_b, diction):
   if type(diction) is not dict:
     raise ValueError('diction is not a dict')
   str_c = strxor(str_a, str_b)
-  cracks = find_spaces(str_c)
+  cracks = find_nulls(str_c)
   #for each crack, xor space with char at str_a (or str_b). res is part of your key
   for crack in cracks:
     k = strxor(' ', str_a[crack])  
